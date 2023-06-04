@@ -1,0 +1,158 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+typedef struct {
+    float num1;
+    float num2;
+    float result;
+} Calculation;
+
+void performAddition(Calculation *calc);
+void performSubtraction(Calculation *calc);
+void performMultiplication(Calculation *calc);
+void performDivision(Calculation *calc);
+void performPower(Calculation *calc);
+void performSquareRoot(Calculation *calc);
+void writeHistoryToCSV(Calculation calculations[], int count);
+
+int main() {
+    int choice;
+    Calculation calculations[100];
+    int count = 0;
+
+    while (1) {
+        printf("╭──────────────────────────────────────────╮\n");
+        printf("│           MINI CALCULATOR                │\n");
+        printf("╰──────────────────────────────────────────╯\n");
+        printf(" ___________________________________\n");
+        printf("||        SELECT AN OPERATION:      ||\n");
+        printf("||          1.ADDITION              ||\n");
+        printf("||          2.SUBTRACTION           ||\n");
+        printf("||          3.MULTIPLICATION        ||\n");
+        printf("||          4.DIVISION              ||\n");
+        printf("||          5.POWER                 ||\n");
+        printf("||          6.SQUARE ROOT           ||\n");
+        printf("||          7.HISTORY               ||\n");
+        printf("||          8.EXIT                  ||\n");
+        printf("||__________________________________||\n");
+        printf("\nENTER YOUR CHOICE: ");
+        scanf("%d", &choice);
+
+        if (choice == 8) {
+            printf("\n╭──────────────────────────────────────────╮\n");
+            printf("│              THANK YOU!                  │\n");
+            printf("╰──────────────────────────────────────────╯\n");
+            writeHistoryToCSV(calculations, count);
+            break;
+        }
+
+        Calculation calc;
+
+        if (choice != 6) {
+            printf("ENTER TWO NUMBERS: ");
+            scanf("%f%f", &calc.num1, &calc.num2);
+        } else {
+            printf("ENTER A NUMBER: ");
+            scanf("%f", &calc.num1);
+        }
+
+        switch (choice) {
+            case 1:
+                performAddition(&calc);
+                break;
+            case 2:
+                performSubtraction(&calc);
+                break;
+            case 3:
+                performMultiplication(&calc);
+                break;
+            case 4:
+                performDivision(&calc);
+                break;
+            case 5:
+                performPower(&calc);
+                break;
+            case 6:
+                performSquareRoot(&calc);
+                break;
+            case 7:
+                printf("╭──────────────────────────────────────────╮\n");
+                printf("│              CALCULATION HISTORY         │\n");
+                printf("╰──────────────────────────────────────────╯\n");
+                for (int i = 0; i < count; i++) {
+                    Calculation historyCalc = calculations[i];
+                    printf("Calculation %d:\n", i + 1);
+                    printf("Number 1: %.2f\n", historyCalc.num1);
+                    if (historyCalc.num2 != 0)
+                        printf("Number 2: %.2f\n", historyCalc.num2);
+                    printf("Result: %.2f\n", historyCalc.result);
+                }
+                continue;
+            default:
+                printf("Invalid choice");
+                continue;
+        }
+
+        calculations[count] = calc; // Store the calculation in the array
+        count++;
+    }
+
+    return 0;
+}
+
+void performAddition(Calculation *calc) {
+    calc->result = calc->num1 + calc->num2;
+    printf("SUM = %.2f\n", calc->result);
+}
+
+void performSubtraction(Calculation *calc) {
+    calc->result = calc->num1 - calc->num2;
+    printf("DIFFERENCE = %.2f\n", calc->result);
+}
+
+void performMultiplication(Calculation *calc) {
+    calc->result = calc->num1 * calc->num2;
+    printf("PRODUCT = %.2f\n", calc->result);
+}
+
+void performDivision(Calculation *calc) {
+    if (calc->num2 != 0) {
+        calc->result = calc->num1 / calc->num2;
+        printf("QUOTIENT = %.2f\n", calc->result);
+    } else {
+        printf("Error: Division by zero is not allowed.\n");
+    }
+}
+
+void performPower(Calculation *calc) {
+    calc->result = pow(calc->num1, calc->num2);
+    printf("RESULT = %.2f\n", calc->result);
+}
+
+void performSquareRoot(Calculation *calc) {
+    if (calc->num1 >= 0) {
+        calc->result = sqrt(calc->num1);
+        printf("RESULT = %.2f\n", calc->result);
+    } else {
+        printf("Error: Square root of a negative number is not defined.\n");
+    }
+}
+
+void writeHistoryToCSV(Calculation calculations[], int count) {
+    FILE *file = fopen("joshrael_yaun.csv", "w");
+    if (file == NULL) {
+        printf("Error opening file for writing.\n");
+        return;
+    }
+
+    fprintf(file, "Calculation, Number 1, Number 2, Result\n");
+
+    for (int i = 0; i < count; i++) {
+        Calculation calc = calculations[i];
+        fprintf(file, "Calculation %d:\n", i + 1);
+        fprintf(file, "%.2f,%.2f,%.2f\n", calc.num1, calc.num2, calc.result);
+    }
+
+    fclose(file);
+}
